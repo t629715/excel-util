@@ -109,21 +109,36 @@ public class ReadExcelUtil {
         }
         List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
         // 循环Excel行数
-        String tmpTableName = "";
+        List<String> tableNameList = new ArrayList<>();
+
+        int total = 0;
         for (int r = 2; r < totalRows; r++) {
             Row row = sheet.getRow(r);
             if (row == null) {
+                total ++;
+                continue;
+            }
+
+
+            String nameTmp  = row.getCell(3).getStringCellValue().trim();
+            if (StringUtils.isEmpty(nameTmp)){
+                nameTmp = "";
+            }else {
+                String[] nameArr = nameTmp.split("\\.");
+                if (nameArr.length > 1){
+                    nameTmp = nameArr[1].toLowerCase();
+                }else {
+                    nameTmp = nameArr[0].toLowerCase();
+                }
+            }
+            if (tableNameList.size() > 0 && tableNameList.contains(nameTmp)){
+                total ++;
                 continue;
             }
             // 循环Excel的列
             Map<String, String> map = new HashMap<String, String>();
-            if (tmpTableName.equals(row.getCell(3).getStringCellValue())){
-                continue;
-            }
-            tmpTableName = row.getCell(3).getStringCellValue();
             for (int c = 0; c < this.totalCells; c++) {
                 Cell cell = row.getCell(c);
-
                 if (null != cell) {
                     if (c == 1) {
                         String schemaName = cell.getStringCellValue().trim();
@@ -143,7 +158,7 @@ public class ReadExcelUtil {
                     } else if (c == 2) {
                         map.put("controlSchema", cell.getStringCellValue().toLowerCase());// 控制schema
                     } else if (c == 3) {
-                        String tableName = cell.getStringCellValue();
+                        String tableName = cell.getStringCellValue().trim();
                         if (StringUtils.isEmpty(tableName)){
                             tableName = "";
                         }else {
@@ -156,6 +171,7 @@ public class ReadExcelUtil {
                             }
 
                         }
+                        tableNameList.add(tableName);
                         map.put("tableName", tableName);// 表名称
                     } else if (c == 4) {
                         String type = cell.getStringCellValue().trim();
@@ -188,6 +204,23 @@ public class ReadExcelUtil {
                         }else if ("全部数据".equals(initCondition)){
                             initCondition = "";
                         }else {
+                            int indexOf = initCondition.indexOf("in");
+                            if (indexOf > 0){
+                                String column = initCondition.substring(0,indexOf).trim();
+                                char[] arr = column.toCharArray();
+                                int index = arr.length-1;
+                                for (int i=arr.length-1; i>=0;i--){
+                                    String str = arr[i]+"";
+                                    if ((str).matches("[a-zA-Z]+")){
+                                        break;
+                                    }else{
+                                        index --;
+                                    }
+                                }
+                                column = column.substring(0,index);
+                                String condition = initCondition.substring(indexOf);
+                                initCondition = column+" "+condition;
+                            }
                             if (initCondition.contains(">")){
                                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
                                 String currentDate = LocalDateTime.now().format(dtf);
@@ -222,8 +255,10 @@ public class ReadExcelUtil {
                 map.put("targetTableSpace", "");// 目标表空间
                 map.put("priorityLevel","");//优先级
             }
+
             dataList.add(map);
         }
+        System.out.println(total);
         return dataList;
     }
 

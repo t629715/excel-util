@@ -28,7 +28,7 @@ public class ExcelUtilApplicationTests {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         String currentDateTime = LocalDateTime.now().format(dtf);
         try {
-            dataList = ExcelUtil.convertExcel("C:\\Users\\meng\\Desktop","按小时跑批.xls");
+            dataList = ExcelUtil.convertExcel("C:\\Users\\meng\\Desktop","每周日跑批.xls");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -37,7 +37,7 @@ public class ExcelUtilApplicationTests {
         String[][] valuesForExcel = ExcelUtil.convertListToValuesForExcel(titlesForExcel.length,dataList);
         HSSFWorkbook workbook = ExcelUtil.getHSSFWorkbook("1",titlesForExcel,valuesForExcel);
         try {
-            ExcelUtil.createExcelFile(workbook,"C:\\Users\\meng\\Desktop","按小时跑批"+currentDateTime+".xls");
+            ExcelUtil.createExcelFile(workbook,"C:\\Users\\meng\\Desktop","每周日跑批"+currentDateTime+".xls");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -45,7 +45,7 @@ public class ExcelUtilApplicationTests {
         String[][] valuesForCsv = ExcelUtil.convertListToValuesForCsv(titlesForCsv.length,dataList);
         workbook = ExcelUtil.getHSSFWorkbook("1",titlesForCsv,valuesForCsv);
         try {
-            ExcelUtil.createExcelFile(workbook,"C:\\Users\\meng\\Desktop","按小时跑批"+currentDateTime+".csv");
+            ExcelUtil.createExcelFile(workbook,"C:\\Users\\meng\\Desktop","每周日跑批"+currentDateTime+".csv");
         } catch (IOException e) {
             e.printStackTrace();
         }
